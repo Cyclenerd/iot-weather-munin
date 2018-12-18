@@ -166,7 +166,10 @@ Select the right board:
 
 #### Libraries
 
-Install the DHT sensor library.
+Install:
+
+* DHT sensor library 
+* Adafruit Unified Sensor
 
 ![DHT](images/manage_libraries.png)
 
