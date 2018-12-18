@@ -142,6 +142,27 @@ Restart:
 service munin-node restart
 ```
 
+#### Multiple Sensors
+
+If you want to see the temperature of multiple sensors in one graph edit `munin.conf` and add:
+
+```
+# example for side by side graph
+[weather;indoor]
+        update no
+        contacts no
+        weather_indoor_celsius.update no
+        weather_indoor_celsius.graph_category sensors
+        weather_indoor_celsius.graph_title indoor temperature
+        weather_indoor_celsius.graph_vlabel degrees Celsius
+        weather_indoor_celsius.graph_args --base 1000
+        weather_indoor_celsius.graph_scale no
+        weather_indoor_celsius.graph_order \
+                Arbeitszimmer=localhost;localhost:weather_arbeit_celsius.weather_arbeit_celsius \
+                Kueche=localhost;localhost:weather_kueche_celsius.weather_kueche_celsius \
+                Wohnzimmer=localhost;localhost:weather_wohnzimmer_celsius.weather_wohnzimmer_celsius
+```
+
 ### ESP8266
 
 Depending on the ESP8266 board, you may need to install USB drivers.
