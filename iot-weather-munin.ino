@@ -12,8 +12,8 @@
 
 #include <ESP8266WiFi.h>       // https://github.com/esp8266/Arduino
 #include <ESP8266HTTPClient.h> // https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266HTTPClient
-#include <DHT.h>               // https://github.com/adafruit/DHT-sensor-library and
-                               // https://github.com/adafruit/Adafruit_Sensor
+#include <Adafruit_Sensor.h>   // https://github.com/adafruit/Adafruit_Sensor
+#include <DHT.h>               // https://github.com/adafruit/DHT-sensor-library
 
 /***************************************************************************************
    Configuration Section
