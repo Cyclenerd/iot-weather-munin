@@ -1,5 +1,5 @@
 /*
-  With this program you can read temperature and humidity.
+  With this program you can read temperature and humidity from a DHT22 sensor.
   The data is sent via HTTP GET to an server.
 
   =====================================================================================
@@ -92,7 +92,7 @@ void connect() {
 }
 
 // The report function sends the data to the server
-void report(double humidity, double temp_c, double temp_f, double heat_index_c, double heat_index_f) {
+void report(double humidity, double temp_c) {
   // Build URL with parameters
   String server_url = String(server) + "?w=" + String(name) + "&c=" +  String(temp_c) + "&h=" + String(humidity);
   Serial.println(server_url);
@@ -146,23 +146,16 @@ void loop() {
   float humidity = dht.readHumidity();
   // Read temperature as Celsius (the default)
   float temp_c = dht.readTemperature();
-  // Read temperature as Fahrenheit (isFahrenheit = true)
-  float temp_f = dht.readTemperature(true);
 
   // Check if any reads failed and exit early (to try again).
-  if (isnan(humidity) || isnan(temp_c) || isnan(temp_f)) {
+  if (isnan(humidity) || isnan(temp_c)) {
     Serial.println("Failed to read from DHT sensor!");
     sensor_attempts++;
     delay(2000); // sleep 2 seconds
     return;
   }
 
-  // Compute heat index in Fahrenheit (the default)
-  float heat_index_f = dht.computeHeatIndex(temp_f, humidity);
-  // Compute heat index in Celsius (isFahreheit = false)
-  float heat_index_c = dht.computeHeatIndex(temp_c, humidity, false);
-
-  report(humidity, temp_c, temp_f, heat_index_c, heat_index_f);
+  report(humidity, temp_c);
 
   deep_sleep();
 }
