@@ -15,7 +15,7 @@ my $store = '/var/lib/weather/';
 
 =head1 NAME
 
-weather_.pl - Munin plugin to monitor celsius and humidity from sensors
+weather_.pl - Munin plugin to monitor celsius, humidity and pressure from sensors
 
 =head1 APPLICABLE SYSTEMS
 
@@ -46,7 +46,7 @@ GPLv3
 
 my $file_name = basename($0);
 
-if ($file_name =~ /^weather_([\d\w]{3,15})_(celsius|humidity)$/) {
+if ($file_name =~ /^weather_([\d\w]{3,15})_(celsius|humidity|pressure)$/) {
     my $name = $1;
     my $what = $2;
     # Celsius
@@ -87,9 +87,28 @@ if ($file_name =~ /^weather_([\d\w]{3,15})_(celsius|humidity)$/) {
         } else {
             die 'Can\'t read humidity';
         }
+    # Pressure
+    } elsif ($what eq 'pressure') {
+        if (defined $ARGV[0] and $ARGV[0] eq "config") {
+            print "graph_title $name pressure\n";
+            print "graph_vlabel hPa\n";
+            print "graph_category sensors\n";
+            print 'weather_'."$name".'_pressure.label '."Pressure\n";
+            exit 0;
+        }
+        my $pressure_store = "$store".'weather_'."$name".'_pressure.txt';
+        if (open PRESSURE, "< $pressure_store") {
+            my $pressure = <PRESSURE>;
+            close PRESSURE;
+            if ($pressure =~ /^[\d\.]*$/) {
+                print 'weather_'."$name".'_pressure.value '."$pressure\n";
+            }
+        } else {
+            die 'Can\'t read pressure';
+        }
     } else {
-        die "Neither celsius nor humidity";
+        die "Neither celsius, humidity nor pressure";
     }
 } else {
-    die "Please use a valid filename: weather_<NAME>_celsius or weather_<NAME>_humidity";
+    die "Please use a valid filename: weather_<NAME>_celsius, weather_<NAME>_humidity or weather_<NAME>_pressure";
 }

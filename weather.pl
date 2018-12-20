@@ -12,7 +12,7 @@ my $store = '/var/lib/weather/';
 
 =head1 NAME
 
-weather.pl - CGI script to store celsius and humidity from sensors
+weather.pl - CGI script to store celsius, humidity and pressure from sensors
 
 =head1 APPLICABLE SYSTEMS
 
@@ -47,7 +47,7 @@ if ($store =~ /\/$/) {
 # GET query string
 my $q = $ENV{'QUERY_STRING'} || '';
 # Parse and check params
-my ($rw, $name, $celsius, $humidity) ;
+my ($rw, $name, $celsius, $humidity, $pressure);
 if ($q =~ /(w|r)=([\d\w]{3,15})/) {
     $rw = $1;
     $name   = $2;
@@ -58,6 +58,9 @@ if ($q =~ /c=([\d\-\.]*)/) {
 if ($q =~ /h=([\d\.]*)/) {
     $humidity = $1;
 }
+if ($q =~ /p=([\d\.]*)/) {
+    $pressure = $1;
+}
 
 print "HTTP/1.0 200 OK\n";
 print "Content-Type: text/html\n\n";
@@ -66,6 +69,7 @@ print "Content-Type: text/html\n\n";
 if ($name) {
     my $celsius_store  = "$store".'weather_'."$name".'_celsius.txt';
     my $humidity_store = "$store".'weather_'."$name".'_humidity.txt';
+    my $pressure_store = "$store".'weather_'."$name".'_pressure.txt';
     if ($rw eq 'w') {
         # Write text file
         if (length $celsius) {
@@ -84,6 +88,15 @@ if ($name) {
                 close HUMIDITY;
             } else {
                 print '<p>Can\'t save humidity';
+            }
+        }
+        if (length $pressure) {
+            # Save pressure
+            if (open PRESSURE, "> $pressure_store") {
+                print PRESSURE "$pressure";
+                close PRESSURE;
+            } else {
+                print '<p>Can\'t save pressure';
             }
         }
     } elsif ($rw eq 'r') {
@@ -107,7 +120,16 @@ if ($name) {
                 $title .= " / $humidity %";
                 $text  .= "<h2>Humidity: $humidity %</h2>";
                 $text  .= '<p><a href=/munin/localhost/localhost/weather_'.$name.'_humidity.html>';
-                $text  .= '<img src=/munin/localhost/localhost/weather_'.$name.'_humidity-day.png>';
+                $text  .= '<img src=/munin/localhost/localhost/weather_'.$name.'_humidity-day.png></a>';
+            }
+        }
+        if (open PRESSURE, "< $pressure_store") {
+            $pressure = <PRESSURE>;
+            close PRESSURE;
+            if ($pressure =~ /^[\d\.]*$/) {
+                $text  .= "<h2>Pressure: $pressure hPa</h2>";
+                $text  .= '<p><a href=/munin/localhost/localhost/weather_'.$name.'_pressure.html>';
+                $text  .= '<img src=/munin/localhost/localhost/weather_'.$name.'_pressure-day.png></a>';
             }
         }
         print '<meta content="width=device-width,initial-scale=1"name=viewport>';
